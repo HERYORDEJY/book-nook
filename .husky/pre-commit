@@ -1,0 +1,8 @@
+echo "🔍 Running lint on staged files..."
+npx lint-staged || exit 1
+
+# echo "🧪 Running tests..."
+# npm test || exit 1
+
+echo "📏 Checking TypeScript types..."
+npm run type-check || exit 1

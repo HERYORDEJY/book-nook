@@ -1,16 +1,18 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
+import BooksList from "~/features/books/components/BooksList";
+import CustomScreenContainer from "~/components/CustomScreenContainer";
 
 export default function Home(): React.JSX.Element {
     return (
-        <View style={styles.container}>
-            <Text>This is the HomeScreen screen</Text>
-        </View>
+        <CustomScreenContainer>
+            <BooksList />
+        </CustomScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        //
+        flex: 1,
     },
 });
