@@ -16,6 +16,7 @@ import CustomText from "~/components/CustomText";
 import SearchIcon from "~/components/svgs/SearchIcon";
 import CustomActivityIndicator from "~/components/CustomActivityIndicator";
 import ScrollToTopArrowIcon from "~/components/svgs/ScrollToTopArrowIcon";
+import BooksListLoading from "~/features/books/components/BooksListLoading";
 
 const NUM_COLUMNS = 2;
 const GAP = 16;
@@ -176,6 +177,15 @@ export default function BooksList(): React.JSX.Element {
         );
     }
 
+    if (loading && books.length === 0) {
+        return (
+            <>
+                {renderSearchBar()}
+                <BooksListLoading />
+            </>
+        );
+    }
+
     return (
         <>
             {renderSearchBar()}
@@ -217,10 +227,6 @@ export default function BooksList(): React.JSX.Element {
                     </CustomText>
                 </Pressable>
             ) : null}
-
-            <CustomActivityIndicator
-                isLoading={loading && books.length === 0}
-            />
         </>
     );
 }

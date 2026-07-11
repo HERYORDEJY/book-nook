@@ -1,5 +1,3 @@
-import { BookDataType } from "~/types/book";
-
 export type TabParamList = {
     Home: undefined;
     Cart: undefined;
@@ -7,7 +5,7 @@ export type TabParamList = {
 
 export type RootStackParamList = {
     Tab: TabParamList;
-    BookDetails: { book: BookDataType };
+    BookDetails: { book: string };
     Checkout: undefined;
     TestScreen: undefined;
 };

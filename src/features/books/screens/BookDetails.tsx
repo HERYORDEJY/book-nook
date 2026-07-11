@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import CustomScreenContainer from "~/components/CustomScreenContainer";
@@ -14,21 +14,51 @@ import CustomButton from "~/components/CustomButton";
 import BookmarkIcon from "~/components/svgs/BookmarkIcon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BookDetailsReviews from "~/features/books/components/BookDetailsReviews";
+import { BookDataType } from "~/types/book";
+import { bookApiService } from "~/services/mock/api/book";
 
 const DURATION = 400;
 
 export default function BookDetails(): React.JSX.Element {
     const route = useRoute<RouteProp<RootStackParamList, "BookDetails">>();
-    const { book } = route.params;
+    const book = useMemo<BookDataType>(
+        () => JSON.parse(route.params.book),
+        [route.params.book],
+    );
     const safeAreaInsets = useSafeAreaInsets();
+
+    const [details, setDetails] = useState<BookDataType | null>(null);
+    const [loadingDetails, setLoadingDetails] = useState<boolean>(true);
+
+    useEffect(() => {
+        const signal = { cancelled: false };
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLoadingDetails(true);
+        bookApiService
+            .getBook(book.id)
+            .then((response) => {
+                if (signal.cancelled) return;
+                setDetails(response);
+            })
+            .catch(() => {})
+            .finally(() => {
+                if (!signal.cancelled) setLoadingDetails(false);
+            });
+        return () => {
+            signal.cancelled = true;
+        };
+    }, [book.id]);
 
     const renderBookReviews = useCallback(() => {
         return (
             <Animated.View entering={FadeInDown.duration(DURATION).delay(280)}>
-                <BookDetailsReviews book={book} />
+                <BookDetailsReviews
+                    reviews={details?.reviews}
+                    loading={loadingDetails}
+                />
             </Animated.View>
         );
-    }, [book]);
+    }, [details, loadingDetails]);
 
     const handleAddToCart = useCallback(() => {
         //

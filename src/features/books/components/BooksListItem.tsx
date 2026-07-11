@@ -30,7 +30,7 @@ export default function BooksListItem({
         useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     const handlePress = useCallback(() => {
-        navigation.navigate("BookDetails", { book: item });
+        navigation.navigate("BookDetails", { book: JSON.stringify(item) });
     }, [item, navigation]);
 
     return (
