@@ -24,7 +24,8 @@ export default function CustomButton({
 }: Props): React.JSX.Element {
     return (
         <Pressable
-            style={[
+            {...props}
+            style={({ pressed }) => [
                 styles.container,
                 variant === "icon" && { width: "auto" },
                 variant === "outlined" && {
@@ -33,6 +34,7 @@ export default function CustomButton({
                     borderWidth: 1,
                 },
                 props.containerStyle,
+                pressed && { opacity: 0.7 },
             ]}
         >
             {props.renderLeftIcon}

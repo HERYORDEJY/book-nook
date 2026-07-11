@@ -13,6 +13,7 @@ interface Props {
     containerStyle?: ViewStyle;
     backButtonStyle?: ViewStyle;
     backButtonIconProps?: SvgProps;
+    rightElement?: React.ReactNode;
 }
 
 export default function StackScreenNavBar(props: Props): React.JSX.Element {
@@ -41,7 +42,7 @@ export default function StackScreenNavBar(props: Props): React.JSX.Element {
                     </CustomText>
                 ) : null}
 
-                <View style={[styles.backButton]} />
+                <View style={[styles.backButton]}>{props.rightElement}</View>
             </View>
         </View>
     );

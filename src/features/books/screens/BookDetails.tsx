@@ -1,12 +1,31 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import {
+    AccessibilityInfo,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    View,
+} from "react-native";
+import Animated, {
+    FadeIn,
+    FadeInDown,
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from "react-native-reanimated";
 import CustomScreenContainer from "~/components/CustomScreenContainer";
 import CustomText from "~/components/CustomText";
 import StarRating from "~/components/StarRating";
 import { Styles } from "~/styles";
 import { RootStackParamList } from "~/navigation/types";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { Image } from "expo-image";
 import StackScreenNavBar from "~/components/StackScreenNavBar";
 import { lightThemeColor } from "~/styles/color";
@@ -16,8 +35,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BookDetailsReviews from "~/features/books/components/BookDetailsReviews";
 import { BookDataType } from "~/types/book";
 import { bookApiService } from "~/services/mock/api/book";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
+import CartBadge from "~/features/cart/components/CartBadge";
+import { useCartStore } from "~/features/cart/store/cartStore";
 
 const DURATION = 400;
+const FLY_DURATION = 600;
 
 export default function BookDetails(): React.JSX.Element {
     const route = useRoute<RouteProp<RootStackParamList, "BookDetails">>();
@@ -26,9 +50,19 @@ export default function BookDetails(): React.JSX.Element {
         [route.params.book],
     );
     const safeAreaInsets = useSafeAreaInsets();
+    const navigation =
+        useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const addItem = useCartStore((state) => state.addItem);
 
     const [details, setDetails] = useState<BookDataType | null>(null);
     const [loadingDetails, setLoadingDetails] = useState<boolean>(true);
+    const [flying, setFlying] = useState<boolean>(false);
+
+    const coverRef = useRef<View>(null);
+    const cartRef = useRef<View>(null);
+    const progress = useSharedValue(0);
+    const start = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
+    const end = useSharedValue({ x: 0, y: 0 });
 
     useEffect(() => {
         const signal = { cancelled: false };
@@ -60,9 +94,56 @@ export default function BookDetails(): React.JSX.Element {
         );
     }, [details, loadingDetails]);
 
-    const handleAddToCart = useCallback(() => {
-        //
-    }, []);
+    const finishFly = useCallback(() => {
+        setFlying(false);
+        addItem(book);
+    }, [addItem, book]);
+
+    const handleAddToCart = useCallback(async () => {
+        const reduceMotion = await AccessibilityInfo.isReduceMotionEnabled();
+        if (reduceMotion || !coverRef.current || !cartRef.current) {
+            addItem(book);
+            return;
+        }
+        coverRef.current.measureInWindow((cx, cy, cw, ch) => {
+            cartRef.current?.measureInWindow((tx, ty, tw, th) => {
+                start.value = { x: cx, y: cy, width: cw, height: ch };
+                end.value = { x: tx + tw / 2, y: ty + th / 2 };
+                setFlying(true);
+                progress.value = 0;
+                progress.value = withTiming(
+                    1,
+                    { duration: FLY_DURATION },
+                    (finished) => {
+                        if (finished) runOnJS(finishFly)();
+                    },
+                );
+            });
+        });
+    }, [addItem, book, start, end, progress, finishFly]);
+
+    const goToCart = useCallback(() => {
+        navigation.navigate("Tab", { screen: "Cart" });
+    }, [navigation]);
+
+    const flyStyle = useAnimatedStyle(() => {
+        const s = start.value;
+        const e = end.value;
+        const centerX = s.x + s.width / 2;
+        const centerY = s.y + s.height / 2;
+        const x = centerX + (e.x - centerX) * progress.value;
+        const y = centerY + (e.y - centerY) * progress.value;
+        return {
+            width: s.width,
+            height: s.height,
+            opacity: 1 - progress.value * 0.3,
+            transform: [
+                { translateX: x - s.width / 2 },
+                { translateY: y - s.height / 2 },
+                { scale: 1 - 0.85 * progress.value },
+            ],
+        };
+    });
 
     const handleBookMark = useCallback(() => {
         //
@@ -75,6 +156,7 @@ export default function BookDetails(): React.JSX.Element {
                 showsVerticalScrollIndicator={false}
             >
                 <Animated.View
+                    ref={coverRef}
                     entering={FadeIn.duration(DURATION)}
                     style={styles.coverImageWrapper}
                     sharedTransitionTag={"bookCover"}
@@ -182,7 +264,33 @@ export default function BookDetails(): React.JSX.Element {
                     backgroundColor: "rgba(0, 0, 0, 0.8)",
                 }}
                 backButtonIconProps={{ color: "#FFFFFF" }}
+                rightElement={
+                    <Pressable
+                        ref={cartRef}
+                        onPress={goToCart}
+                        style={[
+                            styles.cartButton,
+                            // { top: safeAreaInsets.top + 4 },
+                        ]}
+                    >
+                        <CartTabIcon width={22} height={22} color={"#FFFFFF"} />
+                        <CartBadge />
+                    </Pressable>
+                }
             />
+
+            {flying ? (
+                <Animated.View
+                    style={[styles.flyingCover, flyStyle]}
+                    pointerEvents={"none"}
+                >
+                    <Image
+                        source={{ uri: book.coverUrl.thumbnail }}
+                        style={styles.coverImage}
+                        contentFit={"cover"}
+                    />
+                </Animated.View>
+            ) : null}
         </CustomScreenContainer>
     );
 }
@@ -218,6 +326,21 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 0,
         width: "100%",
+    },
+    cartButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    flyingCover: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        borderRadius: 8,
+        overflow: "hidden",
     },
     titleWrapper: {
         rowGap: 5,
