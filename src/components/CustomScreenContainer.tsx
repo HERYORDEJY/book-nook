@@ -1,15 +1,18 @@
 import React, { PropsWithChildren } from "react";
 import { StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Edge, Edges, SafeAreaView } from "react-native-safe-area-context";
 
-type Props = PropsWithChildren;
+type Props = PropsWithChildren & {
+    edges?: Edges;
+};
 
-export default function CustomScreenContainer(props: Props): React.JSX.Element {
+export default function CustomScreenContainer({
+    edges = [],
+    ...props
+}: Props): React.JSX.Element {
+    const resolvedEdges = [...new Set(["left", "right", ...(edges as Edge[])])];
     return (
-        <SafeAreaView
-            style={styles.container}
-            edges={["left", "right", "bottom"]}
-        >
+        <SafeAreaView style={styles.container} edges={resolvedEdges as Edges}>
             {props.children}
         </SafeAreaView>
     );
