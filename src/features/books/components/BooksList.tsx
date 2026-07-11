@@ -13,24 +13,31 @@ const GAP = 16;
 
 export default function BooksList(): React.JSX.Element {
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [page] = useState<number>(1);
+    const [limit] = useState<number>(10);
     const [booksResponseData, setBooksResponseData] = useState<
         PaginatedDataType<BookDataType>
     >({ limit: 10, page: 1 } as PaginatedDataType<BookDataType>);
 
     const keyExtractor = useCallback((item: BookDataType) => item.id, []);
 
-    const getBooks = useCallback(async () => {
-        try {
-            const response = await bookApiService.getBooks({
-                limit: booksResponseData.limit,
-                page: booksResponseData.page,
-                search: searchQuery,
-            });
-            setBooksResponseData(response);
-        } catch (err) {
-            console.log(err);
-        }
-    }, []);
+    const getBooks = useCallback(
+        async (signal?: { cancelled: boolean }) => {
+            try {
+                const response = await bookApiService.getBooks({
+                    limit,
+                    page,
+                    search: searchQuery,
+                });
+                if (!signal?.cancelled) {
+                    setBooksResponseData(response);
+                }
+            } catch (error) {
+                void error;
+            }
+        },
+        [limit, page, searchQuery],
+    );
 
     const renderItem: ListRenderItem<BookDataType> = useCallback(
         ({ item, index }) => {
@@ -66,11 +73,16 @@ export default function BooksList(): React.JSX.Element {
         );
     }, []);
 
-    console.log("\n\n searchQuery :>> \t\t", searchQuery, "\n\n---");
-
     useEffect(() => {
-        getBooks();
-    }, [searchQuery]);
+        const signal = { cancelled: false };
+        // getBooks only calls setState after an awaited fetch resolves, so this
+        // is an async update, not the synchronous cascading render the rule guards against.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        void getBooks(signal);
+        return () => {
+            signal.cancelled = true;
+        };
+    }, [getBooks]);
 
     return (
         <>

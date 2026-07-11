@@ -15,7 +15,6 @@ class BookApiService extends BaseApiService {
 
         await this.simulateNetwork(signal);
 
-        console.log("\n\n search :>> \t\t", search, "\n\n---");
         const query = search?.trim().toLowerCase();
         const filtered = query
             ? BOOKS_DATA.filter(

@@ -13,16 +13,20 @@ interface Props {
 export default function StarRating({
     mode = "display",
     starSize = 12,
+    onStarPress,
     ...props
 }: Props): React.JSX.Element {
     const { decimal, whole } = splitNumber(props.rating);
 
-    const handleSelectStar = useCallback((ratingValue: number) => {
-        if (mode === "display") {
-            return;
-        }
-        props.onStarPress?.(ratingValue);
-    }, []);
+    const handleSelectStar = useCallback(
+        (ratingValue: number) => {
+            if (mode === "display") {
+                return;
+            }
+            onStarPress?.(ratingValue);
+        },
+        [mode, onStarPress],
+    );
 
     return (
         <View style={styles.container}>

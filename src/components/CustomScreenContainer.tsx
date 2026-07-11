@@ -2,9 +2,7 @@ import React, { PropsWithChildren } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-interface Props extends PropsWithChildren {
-    //
-}
+type Props = PropsWithChildren;
 
 export default function CustomScreenContainer(props: Props): React.JSX.Element {
     return (

@@ -59,8 +59,6 @@ export default function BooksListItem({
 
 const styles = StyleSheet.create({
     container: {
-        // flexDirection: "row",
-        // alignItems: "center",
         backgroundColor: "#f9f9f9",
         borderRadius: 5,
         overflow: "hidden",
@@ -79,6 +77,7 @@ const styles = StyleSheet.create({
     body: {
         paddingHorizontal: 4,
         paddingBottom: 6,
+        paddingTop: 2,
         rowGap: 4,
     },
 });
