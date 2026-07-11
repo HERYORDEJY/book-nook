@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
     Pressable,
     PressableProps,
@@ -12,6 +12,10 @@ import CustomText from "~/components/CustomText";
 import { Image } from "expo-image";
 import { Styles } from "~/styles";
 import StarRating from "~/components/StarRating";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "~/navigation/types";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Animated from "react-native-reanimated";
 
 interface Props extends PressableProps {
     item: BookDataType;
@@ -22,14 +26,27 @@ export default function BooksListItem({
     item,
     ...props
 }: Props): React.JSX.Element {
+    const navigation =
+        useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+    const handlePress = useCallback(() => {
+        navigation.navigate("BookDetails", { book: item });
+    }, [item, navigation]);
+
     return (
-        <Pressable style={[styles.container, props.style]}>
-            <View style={[styles.coverImageWrapper]}>
+        <Pressable
+            style={[styles.container, props.style]}
+            onPress={handlePress}
+        >
+            <Animated.View
+                style={[styles.coverImageWrapper]}
+                sharedTransitionTag={"bookCover"}
+            >
                 <Image
                     source={{ uri: item.coverUrl.thumbnail }}
                     style={[styles.coverImage]}
                 />
-            </View>
+            </Animated.View>
 
             <View style={[styles.body]}>
                 <CustomText fontFamily={"medium"} numberOfLines={1}>

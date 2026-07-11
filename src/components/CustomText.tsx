@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TextProps } from "react-native";
 import { FontType, GoogleSansFont } from "~/styles/font";
+import { lightThemeColor } from "~/styles/color";
 
 interface Props extends TextProps {
     fontFamily?: FontType;
@@ -11,7 +12,7 @@ interface Props extends TextProps {
 export default function CustomText({
     fontFamily = "regular",
     fontSize = 14,
-    color = "#222222",
+    color = lightThemeColor.textPrimary,
     ...props
 }: Props): React.JSX.Element {
     const resolvedFontFamily = { ...GoogleSansFont }[fontFamily];
