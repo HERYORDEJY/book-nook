@@ -14,8 +14,9 @@ export const useCartItemCount = (): number =>
 
 export const useCartTotalPrice = (): number =>
     useCartStore((state) =>
-        Object.values(state.items).reduce(
-            (sum, item) => sum + item.book.price * item.quantity,
-            0,
+        Number(
+            Object.values(state.items)
+                .reduce((sum, item) => sum + item.book.price * item.quantity, 0)
+                .toFixed(2),
         ),
     );

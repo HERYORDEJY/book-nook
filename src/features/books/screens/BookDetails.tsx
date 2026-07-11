@@ -39,6 +39,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
 import CartBadge from "~/features/cart/components/CartBadge";
 import { useCartStore } from "~/features/cart/store/cartStore";
+import { useBookmarkStore } from "~/features/books/store/bookmarkStore";
 
 const DURATION = 400;
 const FLY_DURATION = 600;
@@ -53,6 +54,10 @@ export default function BookDetails(): React.JSX.Element {
     const navigation =
         useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const addItem = useCartStore((state) => state.addItem);
+    const toggleBookmark = useBookmarkStore((state) => state.toggleBookmark);
+    const bookmarked = useBookmarkStore((state) =>
+        Boolean(state.bookmarks[book.id]),
+    );
 
     const [details, setDetails] = useState<BookDataType | null>(null);
     const [loadingDetails, setLoadingDetails] = useState<boolean>(true);
@@ -146,8 +151,8 @@ export default function BookDetails(): React.JSX.Element {
     });
 
     const handleBookMark = useCallback(() => {
-        //
-    }, []);
+        toggleBookmark(book);
+    }, [toggleBookmark, book]);
 
     return (
         <CustomScreenContainer>
@@ -253,7 +258,11 @@ export default function BookDetails(): React.JSX.Element {
                     <BookmarkIcon
                         width={24}
                         height={24}
-                        color={lightThemeColor.buttonBackground}
+                        color={
+                            bookmarked
+                                ? lightThemeColor.buttonBackground
+                                : "#CCCCCC"
+                        }
                     />
                 </CustomButton>
             </View>
