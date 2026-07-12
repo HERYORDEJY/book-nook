@@ -10,6 +10,22 @@ and performance optimization.**
 
 ---
 
+## Showcase
+
+<div align="center">
+  <img src="./assets/showcase/Nook screen.png" width="250" alt="Home Screen" />
+  <img src="./assets/showcase/Book details screen.png" width="250" alt="Book Details" />
+  <img src="./assets/showcase/Cart screen.png" width="250" alt="Cart Screen" />
+</div>
+
+<div align="center">
+  <img src="./assets/showcase/Checkout screen.png" width="250" alt="Checkout Screen" />
+  <img src="./assets/showcase/Checkout (filled) screen.png" width="250" alt="Checkout Filled" />
+  <img src="./assets/showcase/Checkout (success) screen.png" width="250" alt="Checkout Success" />
+</div>
+
+---
+
 ## Features
 
 - **Browse & search** — a paginated, virtualized grid of 1,100+ books with 300 ms
@@ -63,7 +79,7 @@ npm run lint       # eslint
 ### State management — Zustand (over Context / Redux)
 
 The cart updates frequently (quantity, total, badge count), so **granular subscriptions**
-matter. React Context re-renders *every* consumer on any change — inefficient for a cart.
+matter. React Context re-renders _every_ consumer on any change — inefficient for a cart.
 Zustand exposes selector-based subscriptions, so only the components that read a given slice
 re-render:
 
@@ -92,9 +108,9 @@ request when the `id`/search changes:
 
 ```ts
 useEffect(() => {
-  const controller = new AbortController();
-  loadDetails(controller.signal);        // resolves loading → success/error
-  return () => controller.abort();       // cancels in-flight request on unmount/re-run
+    const controller = new AbortController();
+    loadDetails(controller.signal); // resolves loading → success/error
+    return () => controller.abort(); // cancels in-flight request on unmount/re-run
 }, [loadDetails]);
 ```
 
@@ -165,14 +181,27 @@ wrapping a bottom-tab navigator (`Home`, `Cart`).
 
 ```ts
 interface Book {
-  id: string; title: string; author: string; price: number;
-  coverUrl: { thumbnail: string; full: string };
-  description: string; rating: number; reviews: Review[]; stock: number;
+    id: string;
+    title: string;
+    author: string;
+    price: number;
+    coverUrl: { thumbnail: string; full: string };
+    description: string;
+    rating: number;
+    reviews: Review[];
+    stock: number;
 }
-interface CartItem { book: Book; quantity: number; }
+interface CartItem {
+    book: Book;
+    quantity: number;
+}
 interface Paginated<T> {
-  data: T[]; page: number; limit: number;
-  total: number; totalPages: number; hasNextPage: boolean;
+    data: T[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
 }
 ```
 
@@ -202,12 +231,12 @@ Jest (`jest-expo` preset) with React Native Testing Library, querying by accessi
 following an Arrange–Act–Assert structure — asserting behavior, not implementation. Run with
 `npm test`. Coverage includes all of the required areas plus extras:
 
-| Area (required)                    | What's tested |
-| ---------------------------------- | ------------- |
-| **Book price component**           | Formatted currency output, zero/invalid amounts |
-| **Cart add/remove component**      | `CartItem` stepper increments/decrements, floor at qty 1, remove |
-| **API requests**                   | `getBooks` pagination & search, `getBook` success/`NOT_FOUND`, forced network failures |
-| **Checkout component**             | Empty-form validation, successful order (checkout called, cart cleared, confirm + back nav), failed checkout preserves cart |
+| Area (required)               | What's tested                                                                                                               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Book price component**      | Formatted currency output, zero/invalid amounts                                                                             |
+| **Cart add/remove component** | `CartItem` stepper increments/decrements, floor at qty 1, remove                                                            |
+| **API requests**              | `getBooks` pagination & search, `getBook` success/`NOT_FOUND`, forced network failures                                      |
+| **Checkout component**        | Empty-form validation, successful order (checkout called, cart cleared, confirm + back nav), failed checkout preserves cart |
 
 Extras: `cartStore` pure logic (no duplicates, stock clamping, `setQuantity` bounds),
 cart selectors (item count, dynamic total), the bookmark store, the `BookDetails` screen's
