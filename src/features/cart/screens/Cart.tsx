@@ -13,8 +13,8 @@ import {
 } from "~/features/cart/store/selectors";
 import { Styles } from "~/styles";
 import CustomButton from "~/components/CustomButton";
+import BookPrice from "~/features/books/components/BookPrice";
 import { RootStackParamList } from "~/navigation/types";
-import { formatAmountIntl } from "~/utils/amount-helpers";
 
 export default function Cart(): React.JSX.Element {
     const navigation =
@@ -58,9 +58,11 @@ export default function Cart(): React.JSX.Element {
             <View style={styles.footer}>
                 <View style={[Styles.row, { justifyContent: "space-between" }]}>
                     <CustomText fontFamily={"medium"}>Total</CustomText>
-                    <CustomText fontFamily={"bold"} fontSize={18}>
-                        {formatAmountIntl(totalPrice)}
-                    </CustomText>
+                    <BookPrice
+                        amount={totalPrice}
+                        fontFamily={"bold"}
+                        fontSize={18}
+                    />
                 </View>
 
                 <CustomButton onPress={handleCheckout}>Checkout</CustomButton>

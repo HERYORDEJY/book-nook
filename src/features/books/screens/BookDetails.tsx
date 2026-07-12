@@ -41,7 +41,7 @@ import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
 import CartBadge from "~/features/cart/components/CartBadge";
 import { useCartStore } from "~/features/cart/store/cartStore";
 import { useBookmarkStore } from "~/features/books/store/bookmarkStore";
-import { formatAmountIntl } from "~/utils/amount-helpers";
+import BookPrice from "~/features/books/components/BookPrice";
 
 const DURATION = 400;
 const FLY_DURATION = 600;
@@ -230,9 +230,7 @@ export default function BookDetails(): React.JSX.Element {
                                 {content.title}
                             </CustomText>
 
-                            <CustomText fontFamily={"medium"} fontSize={18}>
-                                {formatAmountIntl(content.price)}
-                            </CustomText>
+                            <BookPrice amount={content.price} fontSize={18} />
                         </Animated.View>
 
                         <Animated.View

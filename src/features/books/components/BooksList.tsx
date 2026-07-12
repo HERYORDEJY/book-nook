@@ -115,6 +115,9 @@ export default function BooksList(): React.JSX.Element {
     );
 
     const renderSearchBar = useCallback(() => {
+        if (error) {
+            return null;
+        }
         return (
             <View style={[styles.searchBarContainer]}>
                 <CustomTextInput
@@ -126,7 +129,7 @@ export default function BooksList(): React.JSX.Element {
                 />
             </View>
         );
-    }, [handleSearchChange]);
+    }, [error, handleSearchChange]);
 
     const renderEmpty = useCallback(() => {
         if (loading) return null;

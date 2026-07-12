@@ -12,7 +12,7 @@ export class BaseApiService {
         this.failureRate = 0;
     }
 
-    /** Toggle simulated network failures (0 = never, 1 = always). */
+    // Toggle simulated network failures (0 = never, 1 = always)
     setFailureRate(rate: number): void {
         this.failureRate = Math.min(1, Math.max(0, rate));
     }

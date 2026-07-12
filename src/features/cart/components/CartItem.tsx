@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import CustomText from "~/components/CustomText";
+import BookPrice from "~/features/books/components/BookPrice";
 import { Styles } from "~/styles";
 import { lightThemeColor } from "~/styles/color";
 import { CartItemType, useCartStore } from "~/features/cart/store/cartStore";
@@ -40,9 +41,12 @@ export default function CartItem({ item }: Props): React.JSX.Element {
                 <CustomText fontFamily={"medium"} numberOfLines={1}>
                     {book.title}
                 </CustomText>
-                <CustomText fontSize={12} color={lightThemeColor.textSecondary}>
-                    ₦{book.price}
-                </CustomText>
+                <BookPrice
+                    amount={book.price}
+                    fontSize={12}
+                    fontFamily={"regular"}
+                    color={lightThemeColor.textSecondary}
+                />
 
                 <View style={[Styles.row, styles.stepper]}>
                     <Pressable

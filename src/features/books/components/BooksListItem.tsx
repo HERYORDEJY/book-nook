@@ -16,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "~/navigation/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Animated from "react-native-reanimated";
-import { formatAmountIntl } from "~/utils/amount-helpers";
+import BookPrice from "~/features/books/components/BookPrice";
 
 interface Props extends PressableProps {
     item: BookDataType;
@@ -55,13 +55,7 @@ function Component({ item, ...props }: Props): React.JSX.Element {
                     <CustomText fontSize={10} numberOfLines={1} color={"#555"}>
                         {item.author}
                     </CustomText>
-                    <CustomText
-                        fontSize={10}
-                        numberOfLines={1}
-                        fontFamily={"medium"}
-                    >
-                        {formatAmountIntl(item.price)}
-                    </CustomText>
+                    <BookPrice amount={item.price} fontSize={10} />
                 </View>
 
                 <View>
