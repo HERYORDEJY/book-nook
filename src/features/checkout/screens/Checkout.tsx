@@ -97,7 +97,7 @@ export default function Checkout(): React.JSX.Element {
     }, [form, items, clearCart, navigation]);
 
     return (
-        <CustomScreenContainer edges={["top", "bottom"]}>
+        <CustomScreenContainer edges={["bottom"]}>
             <StackScreenNavBar title={"Checkout"} />
 
             <KeyboardAvoidingView

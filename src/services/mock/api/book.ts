@@ -91,4 +91,9 @@ class BookApiService extends BaseApiService {
     }
 }
 
+// Simulated network failure rate — occasionally surfaces the loading/error/retry
+// states across the app (Home list, Book Details). Set to 0 to disable.
+const SIMULATED_FAILURE_RATE = 0.4;
+
 export const bookApiService = new BookApiService();
+bookApiService.setFailureRate(SIMULATED_FAILURE_RATE);

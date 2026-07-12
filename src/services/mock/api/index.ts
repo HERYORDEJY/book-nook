@@ -1,32 +1,44 @@
-import {PaginatedDataType} from "~/services/mock/api/types";
-import {ApiServiceError} from "~/services/mock/api/error";
+import { PaginatedDataType } from "~/services/mock/api/types";
+import { ApiServiceError } from "~/services/mock/api/error";
 
 export class BaseApiService {
+    protected readonly minLatencyMs: number;
+    protected readonly maxLatencyMs: number;
+    protected failureRate: number;
 
-    protected readonly  minLatencyMs: number
-    protected readonly   maxLatencyMs: number
-    protected readonly   failureRate: number
+    constructor() {
+        this.minLatencyMs = 400;
+        this.maxLatencyMs = 900;
+        this.failureRate = 0;
+    }
 
-    constructor(   ) {
-       this.minLatencyMs = 400
-       this.maxLatencyMs = 900
-       this.failureRate = 0
+    /** Toggle simulated network failures (0 = never, 1 = always). */
+    setFailureRate(rate: number): void {
+        this.failureRate = Math.min(1, Math.max(0, rate));
     }
 
     protected async simulateNetwork(signal?: AbortSignal): Promise<void> {
         const { minLatencyMs, maxLatencyMs, failureRate } = this;
-        const latency = minLatencyMs + Math.random() * (maxLatencyMs - minLatencyMs);
+        const latency =
+            minLatencyMs + Math.random() * (maxLatencyMs - minLatencyMs);
 
         await this.delay(latency, signal);
 
         if (Math.random() < failureRate) {
-            throw new ApiServiceError("Network request failed. Check your connection.", {
-                code: "NETWORK",
-            });
+            throw new ApiServiceError(
+                "Network request failed. Check your connection.",
+                {
+                    code: "NETWORK",
+                },
+            );
         }
     }
 
-     protected paginate<T>(items: T[], page = 1, limit = 10): PaginatedDataType<T> {
+    protected paginate<T>(
+        items: T[],
+        page = 1,
+        limit = 10,
+    ): PaginatedDataType<T> {
         const safePage = Math.max(1, Math.floor(page));
         const safeLimit = Math.max(1, Math.floor(limit));
         const total = items.length;
@@ -43,10 +55,14 @@ export class BaseApiService {
         };
     }
 
-     private delay(ms: number, signal?: AbortSignal): Promise<void> {
+    private delay(ms: number, signal?: AbortSignal): Promise<void> {
         return new Promise((resolve, reject) => {
             if (signal?.aborted) {
-                return reject(new ApiServiceError("Request cancelled", { code: "CANCELLED" }));
+                return reject(
+                    new ApiServiceError("Request cancelled", {
+                        code: "CANCELLED",
+                    }),
+                );
             }
 
             const timer = setTimeout(() => {
@@ -56,7 +72,11 @@ export class BaseApiService {
 
             const onAbort = () => {
                 clearTimeout(timer);
-                reject(new ApiServiceError("Request cancelled", { code: "CANCELLED" }));
+                reject(
+                    new ApiServiceError("Request cancelled", {
+                        code: "CANCELLED",
+                    }),
+                );
             };
 
             signal?.addEventListener("abort", onAbort, { once: true });

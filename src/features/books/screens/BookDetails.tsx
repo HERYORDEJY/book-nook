@@ -35,6 +35,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BookDetailsReviews from "~/features/books/components/BookDetailsReviews";
 import { BookDataType } from "~/types/book";
 import { bookApiService } from "~/services/mock/api/book";
+import { ApiServiceError } from "~/services/mock/api/error";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
 import CartBadge from "~/features/cart/components/CartBadge";
@@ -62,6 +63,7 @@ export default function BookDetails(): React.JSX.Element {
 
     const [details, setDetails] = useState<BookDataType | null>(null);
     const [loadingDetails, setLoadingDetails] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
     const [flying, setFlying] = useState<boolean>(false);
 
     const coverRef = useRef<View>(null);
@@ -70,35 +72,70 @@ export default function BookDetails(): React.JSX.Element {
     const start = useSharedValue({ x: 0, y: 0, width: 0, height: 0 });
     const end = useSharedValue({ x: 0, y: 0 });
 
+    const loadDetails = useCallback(
+        (signal?: AbortSignal) => {
+            setLoadingDetails(true);
+            setError(null);
+            bookApiService
+                .getBook(book.id, signal)
+                .then((response) => {
+                    if (signal?.aborted) return;
+                    setDetails(response);
+                })
+                .catch((err) => {
+                    if (signal?.aborted) return;
+                    if (
+                        err instanceof ApiServiceError &&
+                        err.code === "CANCELLED"
+                    )
+                        return;
+                    setError(
+                        err instanceof Error
+                            ? err.message
+                            : "Failed to load book details.",
+                    );
+                })
+                .finally(() => {
+                    if (!signal?.aborted) setLoadingDetails(false);
+                });
+        },
+        [book.id],
+    );
+
     useEffect(() => {
-        const signal = { cancelled: false };
+        const controller = new AbortController();
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLoadingDetails(true);
-        bookApiService
-            .getBook(book.id)
-            .then((response) => {
-                if (signal.cancelled) return;
-                setDetails(response);
-            })
-            .catch(() => {})
-            .finally(() => {
-                if (!signal.cancelled) setLoadingDetails(false);
-            });
-        return () => {
-            signal.cancelled = true;
-        };
-    }, [book.id]);
+        loadDetails(controller.signal);
+        return () => controller.abort();
+    }, [loadDetails]);
+
+    const handleRetry = useCallback(() => loadDetails(), [loadDetails]);
 
     const renderBookReviews = useCallback(() => {
         return (
             <Animated.View entering={FadeInDown.duration(DURATION).delay(280)}>
-                <BookDetailsReviews
-                    reviews={details?.reviews}
-                    loading={loadingDetails}
-                />
+                {error ? (
+                    <View style={styles.reviewsError}>
+                        <CustomText color={"#CC3333"} fontSize={12}>
+                            {error}
+                        </CustomText>
+                        <CustomButton
+                            variant={"outlined"}
+                            containerStyle={styles.retryButton}
+                            onPress={handleRetry}
+                        >
+                            Retry
+                        </CustomButton>
+                    </View>
+                ) : (
+                    <BookDetailsReviews
+                        reviews={details?.reviews}
+                        loading={loadingDetails}
+                    />
+                )}
             </Animated.View>
         );
-    }, [details, loadingDetails]);
+    }, [details, loadingDetails, error, handleRetry]);
 
     const finishFly = useCallback(() => {
         setFlying(false);
@@ -155,6 +192,8 @@ export default function BookDetails(): React.JSX.Element {
         toggleBookmark(book);
     }, [toggleBookmark, book]);
 
+    const content = details ?? book;
+
     return (
         <CustomScreenContainer>
             <ScrollView
@@ -188,11 +227,11 @@ export default function BookDetails(): React.JSX.Element {
                                 fontSize={22}
                                 style={{ flex: 1 }}
                             >
-                                {book.title}
+                                {content.title}
                             </CustomText>
 
                             <CustomText fontFamily={"medium"} fontSize={18}>
-                                {formatAmountIntl(book.price)}
+                                {formatAmountIntl(content.price)}
                             </CustomText>
                         </Animated.View>
 
@@ -205,11 +244,11 @@ export default function BookDetails(): React.JSX.Element {
                                 fontSize={12}
                                 fontFamily={"medium"}
                             >
-                                {book.author}
+                                {content.author}
                             </CustomText>
                             <View style={[styles.ratingWrapper]}>
                                 <StarRating
-                                    rating={book.rating}
+                                    rating={content.rating}
                                     starSize={12}
                                 />
                                 <CustomText
@@ -217,7 +256,7 @@ export default function BookDetails(): React.JSX.Element {
                                     fontFamily={"medium"}
                                     color={lightThemeColor.textSecondary}
                                 >
-                                    ({book.rating})
+                                    ({content.rating})
                                 </CustomText>
                             </View>
                         </Animated.View>
@@ -227,7 +266,7 @@ export default function BookDetails(): React.JSX.Element {
                         entering={FadeInDown.duration(DURATION).delay(260)}
                     >
                         <CustomText style={styles.description}>
-                            {book.description}
+                            {content.description}
                         </CustomText>
                     </Animated.View>
 
@@ -374,5 +413,14 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 4,
+    },
+    reviewsError: {
+        rowGap: 12,
+        paddingVertical: 8,
+        alignItems: "flex-start",
+    },
+    retryButton: {
+        width: "auto",
+        paddingHorizontal: 32,
     },
 });
