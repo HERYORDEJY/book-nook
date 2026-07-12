@@ -18,6 +18,7 @@ import {
 import { Styles } from "~/styles";
 import CustomButton from "~/components/CustomButton";
 import { bookApiService } from "~/services/mock/api/book";
+import { formatAmountIntl } from "~/utils/amount-helpers";
 
 export default function Cart(): React.JSX.Element {
     const items = useCartItems();
@@ -77,7 +78,7 @@ export default function Cart(): React.JSX.Element {
                 <View style={[Styles.row, { justifyContent: "space-between" }]}>
                     <CustomText fontFamily={"medium"}>Total</CustomText>
                     <CustomText fontFamily={"bold"} fontSize={18}>
-                        ₦{totalPrice}
+                        {formatAmountIntl(totalPrice)}
                     </CustomText>
                 </View>
 

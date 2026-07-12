@@ -12,9 +12,7 @@ interface Props extends TextInputProps {
 export default function CustomTextInput(props: Props): React.JSX.Element {
     return (
         <View style={styles.container}>
-            {props.label ? (
-                <CustomText>This is the CustomTextInput component</CustomText>
-            ) : null}
+            {props.label ? <CustomText>{props.label}</CustomText> : null}
 
             <View style={[Styles.row, styles.textInputWrapper]}>
                 {props.renderLeftElement}

@@ -16,16 +16,14 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "~/navigation/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Animated from "react-native-reanimated";
+import { formatAmountIntl } from "~/utils/amount-helpers";
 
 interface Props extends PressableProps {
     item: BookDataType;
     style?: StyleProp<ViewStyle>;
 }
 
-export default function BooksListItem({
-    item,
-    ...props
-}: Props): React.JSX.Element {
+function Component({ item, ...props }: Props): React.JSX.Element {
     const navigation =
         useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -62,7 +60,7 @@ export default function BooksListItem({
                         numberOfLines={1}
                         fontFamily={"medium"}
                     >
-                        ₦{item.price}
+                        {formatAmountIntl(item.price)}
                     </CustomText>
                 </View>
 
@@ -73,6 +71,9 @@ export default function BooksListItem({
         </Pressable>
     );
 }
+
+const BooksListItem = React.memo(Component);
+export default BooksListItem;
 
 const styles = StyleSheet.create({
     container: {

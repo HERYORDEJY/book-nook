@@ -48,6 +48,8 @@ class BookApiService extends BaseApiService {
     ): Promise<CheckoutResponseType> {
         await this.simulateNetwork(signal);
 
+        this.assertValidCheckout(payload);
+
         const totalAmount = payload.items.reduce(
             (sum, item) => sum + item.book.price * item.quantity,
             0,
@@ -58,6 +60,34 @@ class BookApiService extends BaseApiService {
             totalAmount,
             createdAt: new Date().toISOString(),
         };
+    }
+
+    private assertValidCheckout(payload: CheckoutPayloadType): void {
+        const { customer, items } = payload;
+
+        if (!customer?.name?.trim()) {
+            throw new ApiServiceError("Customer name is required", {
+                code: "VALIDATION",
+            });
+        }
+        if (!/^\S+@\S+\.\S+$/.test(customer?.email ?? "")) {
+            throw new ApiServiceError("A valid email is required", {
+                code: "VALIDATION",
+            });
+        }
+        if (!items?.length) {
+            throw new ApiServiceError("Cart is empty", { code: "VALIDATION" });
+        }
+        if (
+            items.some((i) => i.quantity < 1 || !Number.isInteger(i.quantity))
+        ) {
+            throw new ApiServiceError(
+                "Item quantities must be positive whole numbers",
+                {
+                    code: "VALIDATION",
+                },
+            );
+        }
     }
 }
 
