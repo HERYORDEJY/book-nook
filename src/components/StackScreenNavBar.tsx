@@ -30,6 +30,7 @@ export default function StackScreenNavBar(props: Props): React.JSX.Element {
         >
             <View style={[styles.wrapper]}>
                 <Pressable
+                    testID={"stack-navbar-back-button"}
                     style={[styles.backButton, props.backButtonStyle]}
                     onPress={navigation.goBack}
                 >

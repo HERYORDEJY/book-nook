@@ -37,6 +37,7 @@ export default function StarRating({
                 return (
                     <Pressable
                         key={`${rating}`}
+                        testID={"star"}
                         disabled={mode === "display"}
                         onPress={() => handleSelectStar(rating)}
                     >
