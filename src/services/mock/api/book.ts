@@ -1,6 +1,8 @@
 import { BaseApiService } from "~/services/mock/api/index";
 import BOOKS_DATA from "~/services/mock/books.json";
 import {
+    CheckoutPayloadType,
+    CheckoutResponseType,
     GetBooksParamsType,
     PaginatedDataType,
 } from "~/services/mock/api/types";
@@ -38,6 +40,24 @@ class BookApiService extends BaseApiService {
             });
         }
         return book;
+    }
+
+    async checkout(
+        payload: CheckoutPayloadType,
+        signal?: AbortSignal,
+    ): Promise<CheckoutResponseType> {
+        await this.simulateNetwork(signal);
+
+        const totalAmount = payload.items.reduce(
+            (sum, item) => sum + item.book.price * item.quantity,
+            0,
+        );
+
+        return {
+            orderId: `BN-${Date.now().toString(36).toUpperCase()}`,
+            totalAmount,
+            createdAt: new Date().toISOString(),
+        };
     }
 }
 

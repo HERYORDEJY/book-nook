@@ -40,6 +40,7 @@ import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
 import CartBadge from "~/features/cart/components/CartBadge";
 import { useCartStore } from "~/features/cart/store/cartStore";
 import { useBookmarkStore } from "~/features/books/store/bookmarkStore";
+import { useCartItemCount } from "~/features/cart/store/selectors";
 
 const DURATION = 400;
 const FLY_DURATION = 600;
@@ -58,6 +59,8 @@ export default function BookDetails(): React.JSX.Element {
     const bookmarked = useBookmarkStore((state) =>
         Boolean(state.bookmarks[book.id]),
     );
+
+    const count = useCartItemCount();
 
     const [details, setDetails] = useState<BookDataType | null>(null);
     const [loadingDetails, setLoadingDetails] = useState<boolean>(true);
@@ -274,17 +277,23 @@ export default function BookDetails(): React.JSX.Element {
                 }}
                 backButtonIconProps={{ color: "#FFFFFF" }}
                 rightElement={
-                    <Pressable
-                        ref={cartRef}
-                        onPress={goToCart}
-                        style={[
-                            styles.cartButton,
-                            // { top: safeAreaInsets.top + 4 },
-                        ]}
-                    >
-                        <CartTabIcon width={22} height={22} color={"#FFFFFF"} />
-                        <CartBadge />
-                    </Pressable>
+                    count > 0 ? (
+                        <Pressable
+                            ref={cartRef}
+                            onPress={goToCart}
+                            style={[
+                                styles.cartButton,
+                                // { top: safeAreaInsets.top + 4 },
+                            ]}
+                        >
+                            <CartTabIcon
+                                width={22}
+                                height={22}
+                                color={"#FFFFFF"}
+                            />
+                            <CartBadge />
+                        </Pressable>
+                    ) : null
                 }
             />
 

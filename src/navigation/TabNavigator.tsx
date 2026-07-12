@@ -36,7 +36,7 @@ export default function TabNavigator() {
                 name={"Cart"}
                 component={Cart}
                 options={{
-                    headerTitle: "Book Nook",
+                    headerTitle: "Cart",
                     tabBarIcon: ({ focused, color }) => (
                         <CartTabIcon color={color} width={20} height={20} />
                     ),

@@ -1,3 +1,5 @@
+import { CartItemType } from "~/features/cart/store/cartStore";
+
 export interface PaginatedDataType<T> {
     data: T[];
     page: number;
@@ -6,7 +8,6 @@ export interface PaginatedDataType<T> {
     totalPages: number;
     hasNextPage: boolean;
 }
-
 
 export type ApiErrorCodeType =
     | "NETWORK"
@@ -17,10 +18,23 @@ export type ApiErrorCodeType =
     | "HTTP_ERROR"
     | "UNKNOWN";
 
-
 export interface GetBooksParamsType {
     page?: number;
     limit?: number;
-     search?: string;
+    search?: string;
     signal?: AbortSignal;
+}
+
+export interface CheckoutPayloadType {
+    customer: {
+        name: string;
+        email: string;
+    };
+    items: CartItemType[];
+}
+
+export interface CheckoutResponseType {
+    orderId: string;
+    totalAmount: number;
+    createdAt: string;
 }

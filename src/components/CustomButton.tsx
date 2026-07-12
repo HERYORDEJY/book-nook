@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import CustomText from "~/components/CustomText";
 import { lightThemeColor } from "~/styles/color";
+import CustomActivityIndicator from "~/components/CustomActivityIndicator";
 
 interface Props extends Omit<PressableProps, "children"> {
     children: string | React.ReactNode;
@@ -16,12 +17,14 @@ interface Props extends Omit<PressableProps, "children"> {
     renderLeftIcon?: React.ReactNode;
     renderRightIcon?: React.ReactNode;
     containerStyle?: StyleProp<ViewStyle>;
+    loading?: boolean;
 }
 
 export default function CustomButton({
     variant = "filled",
     ...props
 }: Props): React.JSX.Element {
+    const isDisabled = props.disabled || props.loading;
     return (
         <Pressable
             {...props}
@@ -36,6 +39,7 @@ export default function CustomButton({
                 props.containerStyle,
                 pressed && { opacity: 0.7 },
             ]}
+            disabled={isDisabled}
         >
             {props.renderLeftIcon}
 
@@ -55,6 +59,13 @@ export default function CustomButton({
             )}
 
             {props.renderRightIcon}
+
+            {props.loading ? (
+                <CustomActivityIndicator
+                    size={"small"}
+                    indicatorWrapperStyle={{ backgroundColor: "transparent" }}
+                />
+            ) : null}
         </Pressable>
     );
 }
@@ -69,5 +80,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         flexDirection: "row",
         borderRadius: 8,
+        overflow: "hidden",
     },
 });

@@ -23,6 +23,7 @@ interface ActivityLoaderProps {
     size?: "small" | "large";
     label?: string;
     style?: ViewStyle;
+    indicatorWrapperStyle?: ViewStyle;
 }
 
 export default function CustomActivityIndicator({
@@ -35,6 +36,7 @@ export default function CustomActivityIndicator({
     size = "large",
     label,
     style,
+    ...props
 }: ActivityLoaderProps) {
     if (!isLoading) return null;
 
@@ -55,7 +57,10 @@ export default function CustomActivityIndicator({
     }
 
     const indicatorNode = (
-        <View style={styles.indicatorWrapper} pointerEvents="none">
+        <View
+            style={[styles.indicatorWrapper, props.indicatorWrapperStyle]}
+            pointerEvents="none"
+        >
             <ActivityIndicator size={size} color={color} />
             {label ? (
                 <CustomText style={[styles.label, { color }]}>
