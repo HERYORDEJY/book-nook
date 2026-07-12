@@ -1,51 +1,32 @@
-import React, { useCallback, useState } from "react";
-import {
-    Alert,
-    FlatList,
-    ListRenderItem,
-    StyleSheet,
-    View,
-} from "react-native";
+import React, { useCallback } from "react";
+import { FlatList, ListRenderItem, StyleSheet, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CustomScreenContainer from "~/components/CustomScreenContainer";
 import CustomText from "~/components/CustomText";
 import { lightThemeColor } from "~/styles/color";
 import CartItem from "~/features/cart/components/CartItem";
-import { CartItemType, useCartStore } from "~/features/cart/store/cartStore";
+import { CartItemType } from "~/features/cart/store/cartStore";
 import {
     useCartItems,
     useCartTotalPrice,
 } from "~/features/cart/store/selectors";
 import { Styles } from "~/styles";
 import CustomButton from "~/components/CustomButton";
-import { bookApiService } from "~/services/mock/api/book";
+import { RootStackParamList } from "~/navigation/types";
 import { formatAmountIntl } from "~/utils/amount-helpers";
 
 export default function Cart(): React.JSX.Element {
+    const navigation =
+        useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const items = useCartItems();
     const totalPrice = useCartTotalPrice();
-    const clearCart = useCartStore((state) => state.clearCart);
-    const [checkingOut, setCheckingOut] = useState(false);
 
     const keyExtractor = useCallback((item: CartItemType) => item.book.id, []);
 
-    const handleCheckout = useCallback(async () => {
-        setCheckingOut(true);
-        try {
-            const order = await bookApiService.checkout({
-                customer: { name: "Guest", email: "guest@booknook.app" },
-                items,
-            });
-            clearCart();
-            Alert.alert("Order placed", `Order ${order.orderId} confirmed.`);
-        } catch (error) {
-            Alert.alert(
-                "Checkout failed",
-                error instanceof Error ? error.message : "Please try again.",
-            );
-        } finally {
-            setCheckingOut(false);
-        }
-    }, [items, clearCart]);
+    const handleCheckout = useCallback(() => {
+        navigation.navigate("Checkout");
+    }, [navigation]);
 
     const renderItem: ListRenderItem<CartItemType> = useCallback(
         ({ item }) => <CartItem item={item} />,
@@ -82,9 +63,7 @@ export default function Cart(): React.JSX.Element {
                     </CustomText>
                 </View>
 
-                <CustomButton onPress={handleCheckout} loading={checkingOut}>
-                    Checkout
-                </CustomButton>
+                <CustomButton onPress={handleCheckout}>Checkout</CustomButton>
             </View>
         </CustomScreenContainer>
     );
