@@ -85,3 +85,22 @@ jest.mock("expo-linear-gradient", () => {
     const { View } = require("react-native");
     return { LinearGradient: View };
 });
+
+// Safe-area context: passthrough provider/view and zero insets under Jest.
+jest.mock("react-native-safe-area-context", () => {
+    const React = require("react");
+    const { View } = require("react-native");
+    const insets = { top: 0, right: 0, bottom: 0, left: 0 };
+    const frame = { x: 0, y: 0, width: 390, height: 844 };
+    const SafeAreaView = React.forwardRef(
+        ({ edges, ...rest }: Record<string, unknown>, ref: unknown) =>
+            React.createElement(View, { ...rest, ref }),
+    );
+    SafeAreaView.displayName = "SafeAreaView";
+    return {
+        SafeAreaProvider: ({ children }: { children: unknown }) => children,
+        SafeAreaView,
+        useSafeAreaInsets: () => insets,
+        useSafeAreaFrame: () => frame,
+    };
+});
