@@ -40,6 +40,7 @@ import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
 import CartBadge from "~/features/cart/components/CartBadge";
 import { useCartStore } from "~/features/cart/store/cartStore";
 import { useBookmarkStore } from "~/features/books/store/bookmarkStore";
+import { formatAmountIntl } from "~/utils/amount-helpers";
 
 const DURATION = 400;
 const FLY_DURATION = 600;
@@ -191,7 +192,7 @@ export default function BookDetails(): React.JSX.Element {
                             </CustomText>
 
                             <CustomText fontFamily={"medium"} fontSize={18}>
-                                ₦{book.price}
+                                {formatAmountIntl(book.price)}
                             </CustomText>
                         </Animated.View>
 

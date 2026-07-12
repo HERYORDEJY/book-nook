@@ -34,8 +34,14 @@ export default function BooksList(): React.JSX.Element {
     const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
 
     const listRef = useRef<FlashListRef<BookDataType>>(null);
+    const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const keyExtractor = useCallback((item: BookDataType) => item.id, []);
+
+    const handleSearchChange = useCallback((text: string) => {
+        if (searchTimer.current) clearTimeout(searchTimer.current);
+        searchTimer.current = setTimeout(() => setSearchQuery(text), 300);
+    }, []);
 
     const fetchBooks = useCallback(
         async (pageToLoad: number, signal?: { cancelled: boolean }) => {
@@ -116,11 +122,11 @@ export default function BooksList(): React.JSX.Element {
                     renderLeftElement={
                         <SearchIcon width={20} height={20} color={"#999999"} />
                     }
-                    onChangeText={setSearchQuery}
+                    onChangeText={handleSearchChange}
                 />
             </View>
         );
-    }, []);
+    }, [handleSearchChange]);
 
     const renderEmpty = useCallback(() => {
         if (loading) return null;
@@ -160,6 +166,12 @@ export default function BooksList(): React.JSX.Element {
             signal.cancelled = true;
         };
     }, [loadFirstPage]);
+
+    useEffect(() => {
+        return () => {
+            if (searchTimer.current) clearTimeout(searchTimer.current);
+        };
+    }, []);
 
     if (error && books.length === 0) {
         return (

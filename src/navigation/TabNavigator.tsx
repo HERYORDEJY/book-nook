@@ -6,10 +6,13 @@ import Cart from "~/features/cart/screens/Cart";
 import { GoogleSansFont } from "~/styles/font";
 import HomeTabIcon from "~/components/svgs/tab-navigation/HomeTabIcon";
 import CartTabIcon from "~/components/svgs/tab-navigation/CartTabIcon";
+import { useCartItemCount } from "~/features/cart/store/selectors";
+import { lightThemeColor } from "~/styles/color";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator() {
+    const cartCount = useCartItemCount();
     return (
         <Tab.Navigator
             screenOptions={{
@@ -40,6 +43,11 @@ export default function TabNavigator() {
                     tabBarIcon: ({ focused, color }) => (
                         <CartTabIcon color={color} width={20} height={20} />
                     ),
+                    tabBarBadge: cartCount > 0 ? cartCount : undefined,
+                    tabBarBadgeStyle: {
+                        backgroundColor: lightThemeColor.accent,
+                        color: "#FFFFFF",
+                    },
                 }}
             />
         </Tab.Navigator>
